@@ -542,6 +542,13 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 				case CONTROL_MENU_ZOOM:
 					gw.zoomIn( (float)Math.pow( Constant.zoomFactorPerPixelDragged, delta_x-delta_y ) );
 					break;
+					
+					//AJOUT//
+				case CONTROL_MENU_TEMPO:
+					System.out.println(delta_x);
+					System.out.println(delta_y);
+					simplePianoRoll.tempoLabel.setText(Integer.toString(delta_x));
+					break;
 				default:
 					// TODO XXX
 					break;
@@ -638,6 +645,9 @@ public class SimplePianoRoll implements ActionListener {
 
 	JRadioButton drawNotesRadioButton;
 	JRadioButton eraseNotesRadioButton;
+	
+	JLabel tempoLabel = new JLabel("Tempo: ");
+	JLabel tempLabel = new JLabel(" ");
 
 	JRadioButton doNothingUponRolloverRadioButton;
 	JRadioButton playNoteUponRolloverRadioButton;
@@ -854,6 +864,7 @@ public class SimplePianoRoll implements ActionListener {
 
 		toolPanel.add( Box.createRigidArea(new Dimension(1,20)) );
 		toolPanel.add( new JLabel("During dragging:") );
+		
 
 		ButtonGroup dragModeButtonGroup = new ButtonGroup();
 
@@ -897,6 +908,12 @@ public class SimplePianoRoll implements ActionListener {
 				playNoteUponRolloverIfSpecialKeyHeldDownRadioButton.setSelected(true);
 			toolPanel.add( playNoteUponRolloverIfSpecialKeyHeldDownRadioButton );
 			rolloverModeButtonGroup.add( playNoteUponRolloverIfSpecialKeyHeldDownRadioButton );
+		
+			//Ajout//
+			//ButtonGroup tempoModeButtonGroup = new ButtonGroup();
+			toolPanel.add(tempoLabel);
+			toolPanel.add(tempLabel);
+
 
 		frame.pack();
 		frame.setVisible( true );
