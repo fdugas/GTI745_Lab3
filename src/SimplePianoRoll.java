@@ -543,7 +543,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 					gw.zoomIn( (float)Math.pow( Constant.zoomFactorPerPixelDragged, delta_x-delta_y ) );
 					break;
 					
-					//AJOUT//
+					//AJOUT   dsdsd//
 				case CONTROL_MENU_TEMPO:
 					System.out.println(delta_x);
 					System.out.println(delta_y);
