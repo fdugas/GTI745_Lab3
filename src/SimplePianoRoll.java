@@ -228,6 +228,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 	public static final int CONTROL_MENU_TEMPO = 2;
 	public static final int CONTROL_MENU_TOTAL_DURATION = 3;
 	public static final int CONTROL_MENU_TRANSPOSE = 4;
+	public static final int CONTROL_MENU_DURATION = 5;
 
 	RadialMenuWidget radialMenu = new RadialMenuWidget();
 	ControlMenuWidget controlMenu = new ControlMenuWidget();
@@ -248,17 +249,18 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 		addMouseMotionListener( this );
 
 		radialMenu.setItemLabelAndID( RadialMenuWidget.CENTRAL_ITEM, "",            RADIAL_MENU_STOP );
-		radialMenu.setItemLabelAndID( 1,                             "Stop Music",  RADIAL_MENU_STOP );
-		radialMenu.setItemLabelAndID( 3,                             "Draw Notes",  RADIAL_MENU_DRAW );
-		radialMenu.setItemLabelAndID( 5,                             "Play Music",  RADIAL_MENU_PLAY );
-		radialMenu.setItemLabelAndID( 7,                             "Erase Notes", RADIAL_MENU_ERASE );
+		radialMenu.setItemLabelAndID( 1,                             "STOP ◼",  RADIAL_MENU_STOP );
+		radialMenu.setItemLabelAndID( 3,                             "Draw ♪",  RADIAL_MENU_DRAW );
+		radialMenu.setItemLabelAndID( 5,                             "PLAY ►",  RADIAL_MENU_PLAY );
+		radialMenu.setItemLabelAndID( 7,                             "Erase ○", RADIAL_MENU_ERASE );
 
 		controlMenu.setItemLabelAndID( ControlMenuWidget.CENTRAL_ITEM, "", -1 );
-		controlMenu.setItemLabelAndID( 1, "Tempo", CONTROL_MENU_TEMPO );
+		controlMenu.setItemLabelAndID( 1, "Tempo ↑", CONTROL_MENU_TEMPO );
 		controlMenu.setItemLabelAndID( 2, "Pan", CONTROL_MENU_PAN );
-		controlMenu.setItemLabelAndID( 3, "Zoom", CONTROL_MENU_ZOOM );
-		controlMenu.setItemLabelAndID( 5, "Total Duration", CONTROL_MENU_TOTAL_DURATION );
-		controlMenu.setItemLabelAndID( 7, "Transpose", CONTROL_MENU_TRANSPOSE );
+		controlMenu.setItemLabelAndID( 3, "Zoom →", CONTROL_MENU_ZOOM );
+		controlMenu.setItemLabelAndID( 5, "Total Duration ↓", CONTROL_MENU_TOTAL_DURATION );
+		controlMenu.setItemLabelAndID( 7, "← Transpose ", CONTROL_MENU_TRANSPOSE );
+		controlMenu.setItemLabelAndID( 8, "Duration ♫ ", CONTROL_MENU_DURATION );
 
 		gw.frame( score.getBoundingRectangle(), false );
 	}
@@ -301,7 +303,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 			controlMenu.draw( gw );
 
 		if ( ! radialMenu.isVisible() && ! controlMenu.isVisible() ) {
-			// draw datatip
+			// draw datatip  
 			if ( midiNoteNumberOfMouseCurser >= 0 && beatOfMouseCursor >= 0 ) {
 				final int margin = 5;
 				final int x_offset = 15;
@@ -350,10 +352,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 	private void paint( int mouse_x, int mouse_y ) {
 		int newBeatOfMouseCursor = score.getBeatForMouseX( gw, mouse_x );
 		int newMidiNoteNumberOfMouseCurser = score.getMidiNoteNumberForMouseY( gw, mouse_y );
-		if (
-			newBeatOfMouseCursor != beatOfMouseCursor
-			|| newMidiNoteNumberOfMouseCurser != midiNoteNumberOfMouseCurser
-		) {
+		if ( newBeatOfMouseCursor != beatOfMouseCursor|| newMidiNoteNumberOfMouseCurser != midiNoteNumberOfMouseCurser ) {
 			beatOfMouseCursor = newBeatOfMouseCursor;
 			midiNoteNumberOfMouseCurser = newMidiNoteNumberOfMouseCurser;
 			repaint();
@@ -372,7 +371,10 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 					repaint();
 				}
 			}
+			
 		}
+		
+		
 	}
 
 	public void mousePressed( MouseEvent e ) {
@@ -549,8 +551,16 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 					System.out.println(delta_y);
 					simplePianoRoll.tempoLabel.setText(Integer.toString(delta_x));
 					break;
+				
+					//Add duration control
+				case CONTROL_MENU_DURATION:
+					System.out.println("Duration mode" + delta_x);
+					paint( mouse_x, mouse_y );
+					break;	
+					
+					
 				default:
-					// TODO XXX
+					//TO DO
 					break;
 				}
 				repaint();
