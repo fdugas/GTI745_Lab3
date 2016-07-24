@@ -359,7 +359,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 	public void mouseEntered( MouseEvent e ) { }
 	public void mouseExited( MouseEvent e ) { }
 
-	private void paint( int mouse_x, int mouse_y ) {
+	public void paint( int mouse_x, int mouse_y ) {
 		int newBeatOfMouseCursor = score.getBeatForMouseX( gw, mouse_x );
 		int newMidiNoteNumberOfMouseCurser = score.getMidiNoteNumberForMouseY( gw, mouse_y );
 		if ( newBeatOfMouseCursor != beatOfMouseCursor || newMidiNoteNumberOfMouseCurser != midiNoteNumberOfMouseCurser) {
@@ -410,6 +410,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 		}
 		if ( SwingUtilities.isLeftMouseButton(e) ) {
 			paint( mouse_x, mouse_y );
+			System.out.println(mouse_x + " " + mouse_y);
 		}
 	}
 
@@ -787,37 +788,6 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 		}
 		catch (InterruptedException e) { }
 	}
-
-/*	private static MidiEvent createNoteOnEvent(int nKey, long lTick)
-	{
-		return createNoteEvent(ShortMessage.NOTE_ON,
-							   nKey,
-							   64,
-							   lTick);
-	}
-	
-	private static MidiEvent createNoteEvent(int nCommand,
-			int nKey,
-			int nVelocity,
-			long lTick)
-	{
-		ShortMessage	message = new ShortMessage();
-		try
-		{
-			message.setMessage(nCommand,
-					0,	// always on channel 1
-					nKey,
-					nVelocity);
-		}
-		catch (InvalidMidiDataException e)
-		{
-			e.printStackTrace();
-			System.exit(1);
-		}
-		MidiEvent	event = new MidiEvent(message,
-				lTick);
-		return event;
-	}*/
 	
 }
 
@@ -832,6 +802,7 @@ public class SimplePianoRoll implements ActionListener {
 	Synthesizer synthesizer;
 	MidiChannel [] midiChannels;
 
+	JMenuItem generateRandomSongItem;
 	JMenuItem clearMenuItem;
 	JMenuItem quitMenuItem;
 	JCheckBoxMenuItem showToolsMenuItem;
@@ -899,7 +870,16 @@ public class SimplePianoRoll implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		if ( source == clearMenuItem ) {
+		Object generateRandomSong = e.getSource() ;
+		
+		if ( source == generateRandomSongItem ) {
+			System.out.println("Action performedgenerate random song");
+			canvas.paint( 200, 300);
+
+			
+		}
+		
+		else if ( source == clearMenuItem ) {
 			canvas.clear();
 		}
 		else if ( source == quitMenuItem ) {
@@ -914,6 +894,7 @@ public class SimplePianoRoll implements ActionListener {
 				System.exit(0);
 			}
 		}
+		
 		else if ( source == showToolsMenuItem ) {
 			Container pane = frame.getContentPane();
 			if ( showToolsMenuItem.isSelected() ) {
@@ -1003,45 +984,54 @@ public class SimplePianoRoll implements ActionListener {
 		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
 		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
-		clearMenuItem = new JMenuItem("Clear");
-		clearMenuItem.addActionListener(this);
-		menu.add(clearMenuItem);
-
-		menu.addSeparator();
-
-		quitMenuItem = new JMenuItem("Quit");
-		quitMenuItem.addActionListener(this);
-		menu.add(quitMenuItem);
-		menuBar.add(menu);
-		menu = new JMenu("View");
-		showToolsMenuItem = new JCheckBoxMenuItem("Show Options");
-		showToolsMenuItem.setSelected( true );
-		showToolsMenuItem.addActionListener(this);
-		menu.add(showToolsMenuItem);
-
-		highlightMajorScaleMenuItem = new JCheckBoxMenuItem("Highlight Major C Scale");
-		highlightMajorScaleMenuItem.setSelected( highlightMajorScale );
-		highlightMajorScaleMenuItem.addActionListener(this);
-		menu.add(highlightMajorScaleMenuItem);
-
-		menu.addSeparator();
-
-		frameAllMenuItem = new JMenuItem("Frame All");
-		frameAllMenuItem.addActionListener(this);
-		menu.add(frameAllMenuItem);
-
-		autoFrameMenuItem = new JCheckBoxMenuItem("Auto Frame");
-		autoFrameMenuItem.setSelected( isAutoFrameActive );
-		autoFrameMenuItem.addActionListener(this);
-		menu.add(autoFrameMenuItem);
-		menuBar.add(menu);
-		menu = new JMenu("Help");
-		aboutMenuItem = new JMenuItem("About");
-		aboutMenuItem.addActionListener(this);
-		menu.add(aboutMenuItem);
-		menuBar.add(menu);
-		frame.setJMenuBar(menuBar);
+			//File menu
+			JMenu menu = new JMenu("File");
+				generateRandomSongItem = new JMenuItem("Generate random song");
+				generateRandomSongItem.addActionListener(this);
+				menu.add(generateRandomSongItem);
+				
+				clearMenuItem = new JMenuItem("Clear");
+				clearMenuItem.addActionListener(this);
+				menu.add(clearMenuItem);
+		
+				menu.addSeparator();
+		
+				quitMenuItem = new JMenuItem("Quit");
+				quitMenuItem.addActionListener(this);
+				menu.add(quitMenuItem);
+			
+			//View menu
+			menuBar.add(menu);
+			menu = new JMenu("View");
+				showToolsMenuItem = new JCheckBoxMenuItem("Show Options");
+				showToolsMenuItem.setSelected( true );
+				showToolsMenuItem.addActionListener(this);
+				menu.add(showToolsMenuItem);
+		
+				highlightMajorScaleMenuItem = new JCheckBoxMenuItem("Highlight Major C Scale");
+				highlightMajorScaleMenuItem.setSelected( highlightMajorScale );
+				highlightMajorScaleMenuItem.addActionListener(this);
+				menu.add(highlightMajorScaleMenuItem);
+		
+				menu.addSeparator();
+		
+				frameAllMenuItem = new JMenuItem("Frame All");
+				frameAllMenuItem.addActionListener(this);
+				menu.add(frameAllMenuItem);
+		
+				autoFrameMenuItem = new JCheckBoxMenuItem("Auto Frame");
+				autoFrameMenuItem.setSelected( isAutoFrameActive );
+				autoFrameMenuItem.addActionListener(this);
+				menu.add(autoFrameMenuItem);
+			
+			//Help menu
+			menuBar.add(menu);
+				menu = new JMenu("Help");
+				aboutMenuItem = new JMenuItem("About");
+				aboutMenuItem.addActionListener(this);
+				menu.add(aboutMenuItem);
+				menuBar.add(menu);
+				frame.setJMenuBar(menuBar);
 
 		toolPanel = new JPanel();
 		toolPanel.setLayout( new BoxLayout( toolPanel, BoxLayout.Y_AXIS ) );
