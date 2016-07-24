@@ -778,12 +778,17 @@ public class SimplePianoRoll implements ActionListener {
 		if ( source == generateRandomSongItem ) {
 			System.out.println("Action performed generate random song");
 			int min = 50, max = 500;
-			for(int i =0; i < 100; i++)
+			for(int i =0; i < 50; i++)
 			{
-				canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
-			    System.out.println(i);
+					canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
+					System.out.println(i);
 			}
 			
+			for(int j =0; j < 50; j++)
+			{
+					canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
+					System.out.println(j);
+			}
 			
 		}
 		
@@ -1115,7 +1120,7 @@ public class SimplePianoRoll implements ActionListener {
 			
 			//Help menu
 			menuBar.add(menu);
-				menu = new JMenu("Help");
+			menu = new JMenu("Help");
 				aboutMenuItem = new JMenuItem("About");
 				aboutMenuItem.addActionListener(this);
 				menu.add(aboutMenuItem);
