@@ -139,6 +139,10 @@ class Score {
 			return indexOfPitch + midiNoteNumberOfLowestPitch;
 		return -1;
 	}
+	public void setNumBeats(int taille)
+	{
+		this.numBeats = taille;
+	}
 
 	// returns -1 if out of bounds
 	public int getBeatForMouseX( GraphicsWrapper gw, int mouse_x ) {
@@ -438,7 +442,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 					break;
 				case RADIAL_MENU_STOP:
 					simplePianoRoll.setMusicPlaying( false );	
-					
+
 					break;
 				case RADIAL_MENU_DRAW:
 					simplePianoRoll.setDragMode( SimplePianoRoll.DM_DRAW_NOTES );
@@ -604,12 +608,23 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 					break;
 				
 					//Add duration control
-				case CONTROL_MENU_DURATION:
-					System.out.println("Duration mode" + delta_x);
-					paint( mouse_x, mouse_y );
+					
+				
+				
+				case CONTROL_MENU_TOTAL_DURATION:
+					/* Premier test de modification de la durée de la portée
+						score.numBeats += delta_x;						
+						repaint();
+					 */					
+					simplePianoRoll.canvas.score.numBeats += delta_x;
+					// Création d'une nouvelle grille de notes
+					if(simplePianoRoll.canvas.score.numBeats > 0 && (simplePianoRoll.canvas.score.numBeats + delta_x) > 0)
+					{
+						simplePianoRoll.canvas.score.grid = new boolean[simplePianoRoll.canvas.score.numBeats][simplePianoRoll.canvas.score.numPitches];
+					}
 					break;	
-					
-					
+
+
 				default:
 					//TO DO
 					break;
