@@ -12,10 +12,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
+import java.util.concurrent.ThreadLocalRandom;
 
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
@@ -30,6 +32,7 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -39,6 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
+
 
 
 
@@ -435,109 +439,6 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 				case RADIAL_MENU_STOP:
 					simplePianoRoll.setMusicPlaying( false );	
 					
-					System.out.println("midifile begin ");
-					try
-					{
-				//****  Create a new MIDI sequence with 24 ticks per beat  ****
-						Sequence s = new Sequence(javax.sound.midi.Sequence.PPQ,24);
-
-				//****  Obtain a MIDI track from the sequence  ****
-						Track t = s.createTrack();
-
-				//****  General MIDI sysex -- turn on General MIDI sound set  ****
-						byte[] b = {(byte)0xF0, 0x7E, 0x7F, 0x09, 0x01, (byte)0xF7};
-						SysexMessage sm = new SysexMessage();
-						sm.setMessage(b, 6);
-						MidiEvent me = new MidiEvent(sm,(long)0);
-						t.add(me);
-
-				//****  set tempo (meta event)  ****
-						MetaMessage mt = new MetaMessage();
-				        byte[] bt = {0x02, (byte)0x00, 0x00};
-						mt.setMessage(0x51 ,bt, 3);
-						me = new MidiEvent(mt,(long)0);
-						t.add(me);
-
-				//****  set track name (meta event)  ****
-						mt = new MetaMessage();
-						String TrackName = new String("midifile track");
-						mt.setMessage(0x03 ,TrackName.getBytes(), TrackName.length());
-						me = new MidiEvent(mt,(long)0);
-						t.add(me);
-
-				//****  set omni on  ****
-						ShortMessage mm = new ShortMessage();
-						mm.setMessage(0xB0, 0x7D,0x00);
-						me = new MidiEvent(mm,(long)0);
-						t.add(me);
-
-				//****  set poly on  ****
-						mm = new ShortMessage();
-						mm.setMessage(0xB0, 0x7F,0x00);
-						me = new MidiEvent(mm,(long)0);
-						t.add(me);
-
-				//****  set instrument to Piano  ****
-						mm = new ShortMessage();
-						mm.setMessage(0xC0, 0x00, 0x00);
-						me = new MidiEvent(mm,(long)0);
-						t.add(me);
-
-			/*	//****  note on - middle C  ****
-						mm = new ShortMessage();
-						mm.setMessage(0x90,0x3C,0x60);
-						me = new MidiEvent(mm,(long)1);
-						t.add(me);
-					
-
-				//****  note off - middle C - 120 ticks later  ****
-						mm = new ShortMessage();
-						mm.setMessage(0x80,0x3C,0x40);
-						me = new MidiEvent(mm,(long)121);
-						t.add(me);*/
-						 int tick = 0;
-                         for (int i = 0; i < this.score.numBeats; ++i)
-                         {
-                             for (int j = 0; j < this.score.numPitches; ++j)
-                             {
-                                 if (this.score.grid[i][j])
-                                 {
-                     //****  note on - middle C  ****
-                                     mm = new ShortMessage();
-                                     mm.setMessage(0x90, j,0x60);
-                                     me = new MidiEvent(mm,(long)tick);
-                                     t.add(me);
-
-                     //****  note off - middle C - 120 ticks later  ****
-                                     mm = new ShortMessage();
-                                     mm.setMessage(0x80, j,0x40);
-                                     me = new MidiEvent(mm,(long)tick + 150);
-                                     t.add(me);
-                                 }
-                             }
-                             
-                             tick += 150;
-                         }	
-						
-
-				//****  set end of track (meta event) 19 ticks later  ****
-						mt = new MetaMessage();
-				        byte[] bet = {}; // empty array
-						mt.setMessage(0x2F,bet,0);
-						me = new MidiEvent(mt, (long)140);
-						t.add(me);
-
-				//****  write the MIDI sequence to a MIDI file  ****
-						File f = new File("midifile2.mid");
-						MidiSystem.write(s,1,f);
-					} //try
-						catch(Exception e1)
-					{
-						System.out.println("Exception caught " + e1.toString());
-					} //catch
-				    System.out.println("midifile end ");
-					
-					
 					break;
 				case RADIAL_MENU_DRAW:
 					simplePianoRoll.setDragMode( SimplePianoRoll.DM_DRAW_NOTES );
@@ -804,6 +705,9 @@ public class SimplePianoRoll implements ActionListener {
 
 	JMenuItem generateRandomSongItem;
 	JMenuItem clearMenuItem;
+	JMenuItem saveMenuItem;
+	JMenuItem loadMenuItem;
+	JMenuItem rdmMenuItem;
 	JMenuItem quitMenuItem;
 	JCheckBoxMenuItem showToolsMenuItem;
 	JCheckBoxMenuItem highlightMajorScaleMenuItem;
@@ -870,17 +774,134 @@ public class SimplePianoRoll implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-		Object generateRandomSong = e.getSource() ;
-		
+				
 		if ( source == generateRandomSongItem ) {
-			System.out.println("Action performedgenerate random song");
-			canvas.paint( 200, 300);
-
+			System.out.println("Action performed generate random song");
+			int min = 50, max = 500;
+			for(int i =0; i < 100; i++)
+			{
+				canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
+			    System.out.println(i);
+			}
+			
 			
 		}
 		
-		else if ( source == clearMenuItem ) {
-			canvas.clear();
+		if ( source == clearMenuItem ) {
+			canvas.clear();		
+
+		}
+		else if (source == saveMenuItem)
+		{
+            JFileChooser fc = new JFileChooser();
+            
+            int returnVal = fc.showSaveDialog(frame);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = new File(fc.getSelectedFile().getAbsolutePath() + ".mid");
+			System.out.println("Sauvegarder Fichier");
+			
+			System.out.println("midifile begin ");
+			try
+			{
+		//****  Create a new MIDI sequence with 24 ticks per beat  ****
+				Sequence s = new Sequence(javax.sound.midi.Sequence.PPQ,24);
+
+		//****  Obtain a MIDI track from the sequence  ****
+				Track t = s.createTrack();
+
+		//****  General MIDI sysex -- turn on General MIDI sound set  ****
+				byte[] b = {(byte)0xF0, 0x7E, 0x7F, 0x09, 0x01, (byte)0xF7};
+				SysexMessage sm = new SysexMessage();
+				sm.setMessage(b, 6);
+				MidiEvent me = new MidiEvent(sm,(long)0);
+				t.add(me);
+
+		//****  set tempo (meta event)  ****
+				MetaMessage mt = new MetaMessage();
+		        byte[] bt = {0x02, (byte)0x00, 0x00};
+				mt.setMessage(0x51 ,bt, 3);
+				me = new MidiEvent(mt,(long)0);
+				t.add(me);
+
+		//****  set track name (meta event)  ****
+				mt = new MetaMessage();
+				String TrackName = new String("midifile track");
+				mt.setMessage(0x03 ,TrackName.getBytes(), TrackName.length());
+				me = new MidiEvent(mt,(long)0);
+				t.add(me);
+
+		//****  set omni on  ****
+				ShortMessage mm = new ShortMessage();
+				mm.setMessage(0xB0, 0x7D,0x00);
+				me = new MidiEvent(mm,(long)0);
+				t.add(me);
+
+		//****  set poly on  ****
+				mm = new ShortMessage();
+				mm.setMessage(0xB0, 0x7F,0x00);
+				me = new MidiEvent(mm,(long)0);
+				t.add(me);
+
+		//****  set instrument to Piano  ****
+				mm = new ShortMessage();
+				mm.setMessage(0xC0, 0x00, 0x00);
+				me = new MidiEvent(mm,(long)0);
+				t.add(me);
+
+	/*	//****  note on - middle C  ****
+				mm = new ShortMessage();
+				mm.setMessage(0x90,0x3C,0x60);
+				me = new MidiEvent(mm,(long)1);
+				t.add(me);
+			
+
+		//****  note off - middle C - 120 ticks later  ****
+				mm = new ShortMessage();
+				mm.setMessage(0x80,0x3C,0x40);
+				me = new MidiEvent(mm,(long)121);
+				t.add(me);*/
+				 int tick = 0;
+                 for (int i = 0; i < canvas.score.numBeats; ++i)
+                 {
+                     for (int j = 0; j < canvas.score.numPitches; ++j)
+                     {
+                         if (canvas.score.grid[i][j])
+                         {
+             //****  note on - middle C  ****
+                             mm = new ShortMessage();
+                             mm.setMessage(0x90, j,0x60);
+                             me = new MidiEvent(mm,(long)tick);
+                             t.add(me);
+
+             //****  note off - middle C - 120 ticks later  ****
+                             mm = new ShortMessage();
+                             mm.setMessage(0x80, j,0x40);
+                             me = new MidiEvent(mm,(long)tick + 150);
+                             t.add(me);
+                         }
+                     }
+                     
+                     tick += 150;
+                 }	
+				
+
+		//****  set end of track (meta event) 19 ticks later  ****
+				mt = new MetaMessage();
+		        byte[] bet = {}; // empty array
+				mt.setMessage(0x2F,bet,0);
+				me = new MidiEvent(mt, (long)140);
+				t.add(me);
+
+		//****  write the MIDI sequence to a MIDI file  ****
+				MidiSystem.write(s,1,file);
+			} //try
+				catch(Exception e1)
+			{
+				System.out.println("Exception caught " + e1.toString());
+			} //catch
+		    System.out.println("midifile end ");
+            }
 		}
 		else if ( source == quitMenuItem ) {
 			int response = JOptionPane.showConfirmDialog(
@@ -894,7 +915,61 @@ public class SimplePianoRoll implements ActionListener {
 				System.exit(0);
 			}
 		}
-		
+
+		else if (source ==loadMenuItem)
+		{
+			System.out.println("Charger Fichier");
+            JFileChooser fc = new JFileChooser();
+            
+            int returnVal = fc.showOpenDialog(frame);
+
+            if (returnVal == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                
+                canvas.clear();
+                try
+                {
+                    Sequence sequence = MidiSystem.getSequence(file);
+
+                    int beat = 0;
+                    for (Track track :  sequence.getTracks()) {
+                        for (int i=0; i < track.size(); i++) {
+                            MidiEvent event = track.get(i);
+                            MidiMessage message = event.getMessage();
+                            if (message instanceof ShortMessage) {
+                                ShortMessage sm = (ShortMessage) message;
+                                if (sm.getCommand() == 0x90) {
+                                    int key = sm.getData1();
+                                    // int octave = (key / 12)-1;
+                                    int note = key;
+                                    // String noteName = canvas.score.namesOfPitchClasses[note];
+                                    // int velocity = sm.getData2();
+                                    beat = (int)(event.getTick() / 150);
+                                    if (beat <= canvas.score.numBeats && note < canvas.score.numPitches)
+                                    {
+                                        canvas.score.grid[beat][note] = true;
+                                    }
+                                } 
+                                // else if (sm.getCommand() == NOTE_OFF) {
+                                //    int key = sm.getData1();
+                                //    int octave = (key / 12)-1;
+                                //    int note = key % 12;
+                                //    String noteName = canvas.score.namesOfPitchClasses[note];
+                                //    int velocity = sm.getData2();
+                                //}
+                            }
+                        }
+                    }
+                } catch(Exception ex) {}
+            }
+			
+			
+		}
+		else if (source == rdmMenuItem)
+		{
+			System.out.println("rdm Musique");
+		}
+
 		else if ( source == showToolsMenuItem ) {
 			Container pane = frame.getContentPane();
 			if ( showToolsMenuItem.isSelected() ) {
@@ -990,13 +1065,27 @@ public class SimplePianoRoll implements ActionListener {
 				generateRandomSongItem.addActionListener(this);
 				menu.add(generateRandomSongItem);
 				
+				menu.addSeparator();
+				
+				saveMenuItem = new JMenuItem("Save as MIDI");
+				saveMenuItem.addActionListener(this);
+				menu.add(saveMenuItem);
+
+				menu.addSeparator();
+				
+				loadMenuItem = new JMenuItem("Load .MID");
+				loadMenuItem.addActionListener(this);
+				menu.add(loadMenuItem);
+
+				menu.addSeparator();
+				
 				clearMenuItem = new JMenuItem("Clear");
 				clearMenuItem.addActionListener(this);
 				menu.add(clearMenuItem);
 		
 				menu.addSeparator();
 		
-				quitMenuItem = new JMenuItem("Quit");
+				quitMenuItem = new JMenuItem("QUIT");
 				quitMenuItem.addActionListener(this);
 				menu.add(quitMenuItem);
 			
