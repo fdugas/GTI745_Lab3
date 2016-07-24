@@ -1,24 +1,17 @@
-
-import java.util.ArrayList;
-
-import java.awt.Container;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Canvas;
 // import java.awt.Graphics2D;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
-
+import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
-import java.io.IOException;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JMenuBar;
@@ -35,9 +28,10 @@ import javax.swing.BoxLayout;
 import javax.swing.Box;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-
+import javax.sound.midi.MetaMessage;
+import javax.sound.midi.MidiChannel;
+import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiSystem;
-import javax.sound.midi.MidiUnavailableException;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
 import javax.sound.midi.ShortMessage;
@@ -46,10 +40,8 @@ import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Track;
 import javax.sound.midi.spi.MidiFileWriter;
 import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MetaMessage;
-import javax.sound.midi.MidiChannel;
-import javax.sound.midi.MidiEvent;
 import javax.sound.midi.MidiMessage;
+
 
 
 
@@ -83,7 +75,7 @@ class Score {
 
 	public int numPitches = 88;
 	public static final int pitchClassOfLowestPitch = 9; // 9==A==la
-	public static final int midiNoteNumberOfLowestPitch = 21;
+	public final int midiNoteNumberOfLowestPitch = 21;
 	public int numBeats = 128;
 	public boolean [][] grid;
 
@@ -373,17 +365,10 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 	private void paint( int mouse_x, int mouse_y ) {
 		int newBeatOfMouseCursor = score.getBeatForMouseX( gw, mouse_x );
 		int newMidiNoteNumberOfMouseCurser = score.getMidiNoteNumberForMouseY( gw, mouse_y );
-//<<<<<<< HEAD
-		if (
-				newBeatOfMouseCursor != beatOfMouseCursor
-				|| newMidiNoteNumberOfMouseCurser != midiNoteNumberOfMouseCurser
-				) {
-//=======
-		/*if ( newBeatOfMouseCursor != beatOfMouseCursor|| newMidiNoteNumberOfMouseCurser != midiNoteNumberOfMouseCurser ) {
->>>>>>> branch 'master' of https://github.com/fdugas/GTI745_Lab3.git*/
-			beatOfMouseCursor = newBeatOfMouseCursor;
-			midiNoteNumberOfMouseCurser = newMidiNoteNumberOfMouseCurser;
-			repaint();
+		if ( newBeatOfMouseCursor != beatOfMouseCursor || newMidiNoteNumberOfMouseCurser != midiNoteNumberOfMouseCurser) {
+					beatOfMouseCursor = newBeatOfMouseCursor;
+					midiNoteNumberOfMouseCurser = newMidiNoteNumberOfMouseCurser;
+					repaint();
 		}
 
 		if ( beatOfMouseCursor >= 0 && midiNoteNumberOfMouseCurser >= 0 ) {
@@ -401,7 +386,6 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 			}
 			
 		}
-		
 		
 	}
 
