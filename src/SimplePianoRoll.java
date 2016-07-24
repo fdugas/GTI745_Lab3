@@ -12,25 +12,12 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.io.File;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JRadioButton;
-import javax.swing.JCheckBox;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.ButtonGroup;
-import javax.swing.BoxLayout;
-import javax.swing.Box;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
+import java.util.concurrent.ThreadLocalRandom;
+
 import javax.sound.midi.MetaMessage;
 import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiMessage;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Sequence;
 import javax.sound.midi.Sequencer;
@@ -39,8 +26,22 @@ import javax.sound.midi.Synthesizer;
 import javax.sound.midi.SysexMessage;
 import javax.sound.midi.Track;
 import javax.sound.midi.spi.MidiFileWriter;
-import javax.sound.midi.InvalidMidiDataException;
-import javax.sound.midi.MidiMessage;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.SwingUtilities;
 
 
 
@@ -366,7 +367,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 	public void mouseEntered( MouseEvent e ) { }
 	public void mouseExited( MouseEvent e ) { }
 
-	private void paint( int mouse_x, int mouse_y ) {
+	public void paint( int mouse_x, int mouse_y ) {
 		int newBeatOfMouseCursor = score.getBeatForMouseX( gw, mouse_x );
 		int newMidiNoteNumberOfMouseCurser = score.getMidiNoteNumberForMouseY( gw, mouse_y );
 		if ( newBeatOfMouseCursor != beatOfMouseCursor || newMidiNoteNumberOfMouseCurser != midiNoteNumberOfMouseCurser) {
@@ -417,6 +418,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 		}
 		if ( SwingUtilities.isLeftMouseButton(e) ) {
 			paint( mouse_x, mouse_y );
+			System.out.println(mouse_x + " " + mouse_y);
 		}
 	}
 
@@ -440,6 +442,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 					break;
 				case RADIAL_MENU_STOP:
 					simplePianoRoll.setMusicPlaying( false );	
+
 					break;
 				case RADIAL_MENU_DRAW:
 					simplePianoRoll.setDragMode( SimplePianoRoll.DM_DRAW_NOTES );
@@ -700,8 +703,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 			}
 		}
 		catch (InterruptedException e) { }
-	}	
-
+	}
 	
 }
 
@@ -716,6 +718,7 @@ public class SimplePianoRoll implements ActionListener {
 	Synthesizer synthesizer;
 	MidiChannel [] midiChannels;
 
+	JMenuItem generateRandomSongItem;
 	JMenuItem clearMenuItem;
 	JMenuItem saveMenuItem;
 	JMenuItem loadMenuItem;
@@ -786,6 +789,19 @@ public class SimplePianoRoll implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
+				
+		if ( source == generateRandomSongItem ) {
+			System.out.println("Action performed generate random song");
+			int min = 50, max = 500;
+			for(int i =0; i < 100; i++)
+			{
+				canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
+			    System.out.println(i);
+			}
+			
+			
+		}
+		
 		if ( source == clearMenuItem ) {
 			canvas.clear();		
 
@@ -914,6 +930,7 @@ public class SimplePianoRoll implements ActionListener {
 				System.exit(0);
 			}
 		}
+
 		else if (source ==loadMenuItem)
 		{
 			System.out.println("Charger Fichier");
@@ -967,6 +984,7 @@ public class SimplePianoRoll implements ActionListener {
 		{
 			System.out.println("rdm Musique");
 		}
+
 		else if ( source == showToolsMenuItem ) {
 			Container pane = frame.getContentPane();
 			if ( showToolsMenuItem.isSelected() ) {
@@ -1056,62 +1074,68 @@ public class SimplePianoRoll implements ActionListener {
 		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
 		JMenuBar menuBar = new JMenuBar();
-		JMenu menu = new JMenu("File");
-		clearMenuItem = new JMenuItem("Clear");
-		clearMenuItem.addActionListener(this);
-		menu.add(clearMenuItem);
+			//File menu
+			JMenu menu = new JMenu("File");
+				generateRandomSongItem = new JMenuItem("Generate random song");
+				generateRandomSongItem.addActionListener(this);
+				menu.add(generateRandomSongItem);
+				
+				menu.addSeparator();
+				
+				saveMenuItem = new JMenuItem("Save as MIDI");
+				saveMenuItem.addActionListener(this);
+				menu.add(saveMenuItem);
 
-		menu.addSeparator();
-		saveMenuItem = new JMenuItem("Save as MIDI");
-		saveMenuItem.addActionListener(this);
-		menu.add(saveMenuItem);
+				menu.addSeparator();
+				
+				loadMenuItem = new JMenuItem("Load .MID");
+				loadMenuItem.addActionListener(this);
+				menu.add(loadMenuItem);
 
-		menu.addSeparator();
+				menu.addSeparator();
+				
+				clearMenuItem = new JMenuItem("Clear");
+				clearMenuItem.addActionListener(this);
+				menu.add(clearMenuItem);
 		
-		loadMenuItem = new JMenuItem("Load Midi");
-		loadMenuItem.addActionListener(this);
-		menu.add(loadMenuItem);
-
-		menu.addSeparator();
+				menu.addSeparator();
 		
-		rdmMenuItem = new JMenuItem("Générer Musique");
-		rdmMenuItem.addActionListener(this);
-		menu.add(rdmMenuItem);
-
-		menu.addSeparator();
-
-		quitMenuItem = new JMenuItem("Quit");
-		quitMenuItem.addActionListener(this);
-		menu.add(quitMenuItem);
-		menuBar.add(menu);
-		menu = new JMenu("View");
-		showToolsMenuItem = new JCheckBoxMenuItem("Show Options");
-		showToolsMenuItem.setSelected( true );
-		showToolsMenuItem.addActionListener(this);
-		menu.add(showToolsMenuItem);
-
-		highlightMajorScaleMenuItem = new JCheckBoxMenuItem("Highlight Major C Scale");
-		highlightMajorScaleMenuItem.setSelected( highlightMajorScale );
-		highlightMajorScaleMenuItem.addActionListener(this);
-		menu.add(highlightMajorScaleMenuItem);
-
-		menu.addSeparator();
-
-		frameAllMenuItem = new JMenuItem("Frame All");
-		frameAllMenuItem.addActionListener(this);
-		menu.add(frameAllMenuItem);
-
-		autoFrameMenuItem = new JCheckBoxMenuItem("Auto Frame");
-		autoFrameMenuItem.setSelected( isAutoFrameActive );
-		autoFrameMenuItem.addActionListener(this);
-		menu.add(autoFrameMenuItem);
-		menuBar.add(menu);
-		menu = new JMenu("Help");
-		aboutMenuItem = new JMenuItem("About");
-		aboutMenuItem.addActionListener(this);
-		menu.add(aboutMenuItem);
-		menuBar.add(menu);
-		frame.setJMenuBar(menuBar);
+				quitMenuItem = new JMenuItem("QUIT");
+				quitMenuItem.addActionListener(this);
+				menu.add(quitMenuItem);
+			
+			//View menu
+			menuBar.add(menu);
+			menu = new JMenu("View");
+				showToolsMenuItem = new JCheckBoxMenuItem("Show Options");
+				showToolsMenuItem.setSelected( true );
+				showToolsMenuItem.addActionListener(this);
+				menu.add(showToolsMenuItem);
+		
+				highlightMajorScaleMenuItem = new JCheckBoxMenuItem("Highlight Major C Scale");
+				highlightMajorScaleMenuItem.setSelected( highlightMajorScale );
+				highlightMajorScaleMenuItem.addActionListener(this);
+				menu.add(highlightMajorScaleMenuItem);
+		
+				menu.addSeparator();
+		
+				frameAllMenuItem = new JMenuItem("Frame All");
+				frameAllMenuItem.addActionListener(this);
+				menu.add(frameAllMenuItem);
+		
+				autoFrameMenuItem = new JCheckBoxMenuItem("Auto Frame");
+				autoFrameMenuItem.setSelected( isAutoFrameActive );
+				autoFrameMenuItem.addActionListener(this);
+				menu.add(autoFrameMenuItem);
+			
+			//Help menu
+			menuBar.add(menu);
+				menu = new JMenu("Help");
+				aboutMenuItem = new JMenuItem("About");
+				aboutMenuItem.addActionListener(this);
+				menu.add(aboutMenuItem);
+				menuBar.add(menu);
+				frame.setJMenuBar(menuBar);
 
 		toolPanel = new JPanel();
 		toolPanel.setLayout( new BoxLayout( toolPanel, BoxLayout.Y_AXIS ) );
