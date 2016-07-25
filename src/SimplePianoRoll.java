@@ -634,6 +634,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 		}
 		else {
 			paint( mouse_x, mouse_y );
+			System.out.println(mouse_y);
 		}
 	}
 
@@ -791,23 +792,62 @@ public class SimplePianoRoll implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
 				// *****************A MODIFIER**************************//
+		/*	// returns -1 if out of bounds
+	public int getBeatForMouseX( GraphicsWrapper gw, int mouse_x ) {
+		float x = gw.convertPixelsToWorldSpaceUnitsX( mouse_x );
+		int indexOfBeat = (int)x;
+		if ( 0 <= indexOfBeat && indexOfBeat < numBeats )
+			return indexOfBeat;
+		return -1;
+	}*/
 		
 		//Choisir aléatoirement entre plusieurs gamme
 		//Ecrire aléatoirement des notes sur la gamme choisie
 		if ( source == generateRandomSongItem ) {
 			System.out.println("Action performed generate random song");
-			int min = 50, max = 500;
+			
+			//choix d'une gamme aléatoire
+			int gammeChoisie = ThreadLocalRandom.current().nextInt(1, 7);	
+
+			System.out.println("test gamme" + canvas.gw.convertWorldSpaceUnitsToPixelsY((float)gammeChoisie));
+			System.out.println("test2 gamme" + canvas.gw.convertPixelsToWorldSpaceUnitsY((float)gammeChoisie));
+			System.out.println(canvas.getHeight());
+			System.out.println(canvas.getWidth());
+			System.out.println(canvas.gw.getHeight());
+			System.out.println(canvas.gw.getWidth());
+			
+			//intervalle des notes disponibles
+			int minNote = gammeChoisie * 1;
+			int maxNote = gammeChoisie * 12;
+			
+			System.out.println("gamme: " + gammeChoisie);
+			System.out.println("min: " + minNote);
+			System.out.println("max: " + maxNote);
+			
+			int minPixelY = canvas.gw.convertWorldSpaceUnitsToPixelsY((float)minNote);
+			int maxPixelY = canvas.gw.convertWorldSpaceUnitsToPixelsY((float)maxNote);
+			
+			System.out.println("test " + canvas.gw.convertWorldSpaceUnitsToPixelsY((float)minNote));
+			canvas.paint(50,canvas.gw.convertWorldSpaceUnitsToPixelsY((float)minNote));
+			canvas.paint(40,minNote);
+
+
+			/******************PARTIE PAL*******************/
+			//for(int i = 1;i<200;i++){
+				canvas.paint(ThreadLocalRandom.current().nextInt(50, 100),ThreadLocalRandom.current().nextInt(minNote, maxNote));
+			//}
+		/*	int min = 50, max = 500;
 			for(int i =0; i < 50; i++)
 			{
 					canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
-					System.out.println(i);
+					//System.out.println(i);
 			}
 			
 			for(int j =0; j < 50; j++)
 			{
 					canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
-					System.out.println(j);
-			}
+					//System.out.println(j);
+			}*/
 			
 		}
 		
