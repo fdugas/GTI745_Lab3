@@ -42,7 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.SwingUtilities;
-
+import java.util.Random;
 
 
 
@@ -223,7 +223,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 
 	SimplePianoRoll simplePianoRoll;
 	GraphicsWrapper gw = new GraphicsWrapper();
-	
+
 	Score score = new Score();
 
 	Thread thread = null;
@@ -372,9 +372,9 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 		int newBeatOfMouseCursor = score.getBeatForMouseX( gw, mouse_x );
 		int newMidiNoteNumberOfMouseCurser = score.getMidiNoteNumberForMouseY( gw, mouse_y );
 		if ( newBeatOfMouseCursor != beatOfMouseCursor || newMidiNoteNumberOfMouseCurser != midiNoteNumberOfMouseCurser) {
-					beatOfMouseCursor = newBeatOfMouseCursor;
-					midiNoteNumberOfMouseCurser = newMidiNoteNumberOfMouseCurser;
-					repaint();
+			beatOfMouseCursor = newBeatOfMouseCursor;
+			midiNoteNumberOfMouseCurser = newMidiNoteNumberOfMouseCurser;
+			repaint();
 		}
 
 		if ( beatOfMouseCursor >= 0 && midiNoteNumberOfMouseCurser >= 0 ) {
@@ -390,9 +390,9 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 					repaint();
 				}
 			}
-			
+
 		}
-		
+
 	}
 
 	public void mousePressed( MouseEvent e ) {
@@ -604,12 +604,12 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 							tempo = 1 + (deltaX_bis/(double)gw.getWidth());
 						}
 					}
-					simplePianoRoll.tempoLabel.setText(Double.toString(Math.round(tempo*200)));
+					simplePianoRoll.tempoLabel.setText(Double.toString(Math.round(tempo*200)) + " ms");
 
 					break;
-				
-										
-				
+
+
+
 					/************************AJOUT************************/
 				case CONTROL_MENU_TOTAL_DURATION:
 					/* Premier test de modification de la durée de la portée
@@ -661,7 +661,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 		try {
 			/************************AJOUT************************/
 			int sleepIntervalInMilliseconds = 200; //150
-			
+
 
 			while (true) {
 
@@ -687,7 +687,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 								simplePianoRoll.midiChannels[0].noteOn( i+score.midiNoteNumberOfLowestPitch, Constant.midiVolume );
 							//System.out.println(" On" + i+score.midiNoteNumberOfLowestPitch);
 							//track.add(createNoteOnEvent(i+score.midiNoteNumberOfLowestPitch,0));						
-						
+
 						}
 					}
 				}
@@ -706,7 +706,7 @@ class MyCanvas extends JPanel implements KeyListener, MouseListener, MouseMotion
 		}
 		catch (InterruptedException e) { }
 	}
-	
+
 }
 
 public class SimplePianoRoll implements ActionListener {
@@ -721,6 +721,7 @@ public class SimplePianoRoll implements ActionListener {
 	MidiChannel [] midiChannels;
 	/************************AJOUT************************/
 	JMenuItem generateRandomSongItem;
+	JMenuItem generateRandomSongItem2;
 	JMenuItem clearMenuItem;
 	JMenuItem saveMenuItem;
 	JMenuItem loadMenuItem;
@@ -791,179 +792,238 @@ public class SimplePianoRoll implements ActionListener {
 
 	public void actionPerformed(ActionEvent e) {
 		Object source = e.getSource();
-				// *****************A MODIFIER**************************//
-		/*	// returns -1 if out of bounds
-	public int getBeatForMouseX( GraphicsWrapper gw, int mouse_x ) {
-		float x = gw.convertPixelsToWorldSpaceUnitsX( mouse_x );
-		int indexOfBeat = (int)x;
-		if ( 0 <= indexOfBeat && indexOfBeat < numBeats )
-			return indexOfBeat;
-		return -1;
-	}*/
-		
+
 		//Choisir aléatoirement entre plusieurs gamme
 		//Ecrire aléatoirement des notes sur la gamme choisie
 		if ( source == generateRandomSongItem ) {
 			System.out.println("Action performed generate random song");
-			
-			//choix d'une gamme aléatoire
-			int gammeChoisie = ThreadLocalRandom.current().nextInt(1, 7);	
-
-			System.out.println("test gamme" + canvas.gw.convertWorldSpaceUnitsToPixelsY((float)gammeChoisie));
-			System.out.println("test2 gamme" + canvas.gw.convertPixelsToWorldSpaceUnitsY((float)gammeChoisie));
-			System.out.println(canvas.getHeight());
-			System.out.println(canvas.getWidth());
-			System.out.println(canvas.gw.getHeight());
-			System.out.println(canvas.gw.getWidth());
-			
-			//intervalle des notes disponibles
-			int minNote = gammeChoisie * 1;
-			int maxNote = gammeChoisie * 12;
-			
-			System.out.println("gamme: " + gammeChoisie);
-			System.out.println("min: " + minNote);
-			System.out.println("max: " + maxNote);
-			
-			int minPixelY = canvas.gw.convertWorldSpaceUnitsToPixelsY((float)minNote);
-			int maxPixelY = canvas.gw.convertWorldSpaceUnitsToPixelsY((float)maxNote);
-			
-			System.out.println("test " + canvas.gw.convertWorldSpaceUnitsToPixelsY((float)minNote));
-			canvas.paint(50,canvas.gw.convertWorldSpaceUnitsToPixelsY((float)minNote));
-			canvas.paint(40,minNote);
-
-
+			canvas.clear();
 			/******************PARTIE PAL*******************/
-			//for(int i = 1;i<200;i++){
-				canvas.paint(ThreadLocalRandom.current().nextInt(50, 100),ThreadLocalRandom.current().nextInt(minNote, maxNote));
-			//}
-		/*	int min = 50, max = 500;
-			for(int i =0; i < 50; i++)
+			/*System.out.println("  " + canvas.score.numBeats);
+			int min = 50, max = 500;
+			for(int i =0; i < canvas.score.numBeats; i++)
 			{
-					canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
-					//System.out.println(i);
+				canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
+
+				//System.out.println(i);
 			}
-			
-			for(int j =0; j < 50; j++)
+
+				for(int j =0; j < canvas.score.numBeats; j++)
 			{
 					canvas.paint( ThreadLocalRandom.current().nextInt(min, max + 1), ThreadLocalRandom.current().nextInt(min, max + 1));	
 					//System.out.println(j);
 			}*/
+		
+			
+			int gammeChoisie = nbrRDM(1,7); //7
+			//On parcourt la grille de notes
+			for ( int y = gammeChoisie*12 -12; y < gammeChoisie*12; ++y ) {
+				for ( int x = 0; x < canvas.score.numBeats; ++x ) {
+					int nbrALEA = nbrRDM(1,10000);
+					if(nbrALEA < 400)
+					{
+						canvas.score.grid[x][y] = true;
+					}
+					
+				}
+			}
+			
+			canvas.repaint();
+			
+		
+		/*	for ( int y = 0; y < canvas.score.numPitches; ++y ) {
+				for ( int x = 0; x < canvas.score.numBeats; ++x ) {
+					if(canvas.score.grid[x][y])
+					{
+						//System.out.println("x: " + x + " y: " + y);
+
+						if(x<canvas.score.numBeats && y<canvas.score.numPitches && x-1>0 && y-1>0)
+						{
+							if(nbrRDM(1,10000)<500)
+							{
+
+								canvas.score.grid[x-1][y-1] = true;
+							}
+
+							else if(nbrRDM(1,10000)<100)
+							{
+								canvas.score.grid[x-3][y-3] = true;
+							}
+							canvas.repaint();
+						}
+					}
+				}
+			}*/
+
+			
+			/*for ( int y = 0; y < canvas.score.numPitches; ++y ) {
+				for ( int x = 0; x < canvas.score.numBeats; ++x ) {
+					int rdm2 = nbrRDM(1,4);
+					if(canvas.score.grid[x][y])
+					{
+						//System.out.println("x: " + x + " y: " + y);
+
+						if(x+4<canvas.score.numBeats && y<canvas.score.numPitches && x>0 && y-1>0)
+						{
+							canvas.score.grid[x + rdm2][y] = true;
+							canvas.repaint();
+						}
+					}
+				}
+			}	*/		
+			
+			
+			
+			
 			
 		}
-		
-		if ( source == clearMenuItem ) {
+		else if ( source == generateRandomSongItem2 ) {
+					System.out.println("Action performed generate random song");
+					canvas.clear();
+				
+					
+					int gammeChoisie = nbrRDM(1,7); //7
+					//On parcourt la grille de notes
+					for ( int y = gammeChoisie*12 -12; y < gammeChoisie*12; ++y ) {
+						for ( int x = 0; x < canvas.score.numBeats; ++x ) {
+							int nbrALEA = nbrRDM(1,10000);
+							if(nbrALEA < 400)
+							{
+								canvas.score.grid[x][y] = true;
+							}
+							
+						}
+					}
+					
+					gammeChoisie = nbrRDM(1,7); //7
+					//On parcourt la grille de notes
+					for ( int y = gammeChoisie*12 -12; y < gammeChoisie*12; ++y ) {
+						for ( int x = 0; x < canvas.score.numBeats; ++x ) {
+							int nbrALEA = nbrRDM(1,10000);
+							if(nbrALEA < 400)
+							{
+								canvas.score.grid[x][y] = true;
+							}
+							
+						}
+					}
+					canvas.repaint();							
+					
+				}
+
+		else if ( source == clearMenuItem ) {
 			canvas.clear();		
 
 		}
 		/************************AJOUT************************/
 		else if (source == saveMenuItem)
 		{
-            JFileChooser fc = new JFileChooser();
-            
-            int returnVal = fc.showSaveDialog(frame);
+			JFileChooser fc = new JFileChooser();
 
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = new File(fc.getSelectedFile().getAbsolutePath() + ".mid");
-			
-			System.out.println("Début Sauvegarde");
-			try
-			{
-				/************************AJOUT************************/
-				/**
-				 * midifile.java
-				 *
-				 * A very short program which builds and writes
-				 * a one-note Midi file.
-				 *
-				 * author  Karl Brown
-				 * last updated 2/24/2003
-				 */
-		//****  Create a new MIDI sequence with 24 ticks per beat  ****
-				Sequence s = new Sequence(javax.sound.midi.Sequence.PPQ,24);
+			int returnVal = fc.showSaveDialog(frame);
 
-		//****  Obtain a MIDI track from the sequence  ****
-				Track t = s.createTrack();
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = new File(fc.getSelectedFile().getAbsolutePath() + ".mid");
 
-		//****  General MIDI sysex -- turn on General MIDI sound set  ****
-				byte[] b = {(byte)0xF0, 0x7E, 0x7F, 0x09, 0x01, (byte)0xF7};
-				SysexMessage sm = new SysexMessage();
-				sm.setMessage(b, 6);
-				MidiEvent me = new MidiEvent(sm,(long)0);
-				t.add(me);
+				System.out.println("Début Sauvegarde");
+				try
+				{
+					/************************AJOUT************************/
+					/**
+					 * midifile.java
+					 *
+					 * A very short program which builds and writes
+					 * a one-note Midi file.
+					 *
+					 * author  Karl Brown
+					 * last updated 2/24/2003
+					 */
+					//****  Create a new MIDI sequence with 24 ticks per beat  ****
+					Sequence s = new Sequence(javax.sound.midi.Sequence.PPQ,24);
 
-		//****  set tempo (meta event)  ****
-				MetaMessage mt = new MetaMessage();
-		        byte[] bt = {0x02, (byte)0x00, 0x00};
-				mt.setMessage(0x51 ,bt, 3);
-				me = new MidiEvent(mt,(long)0);
-				t.add(me);
+					//****  Obtain a MIDI track from the sequence  ****
+					Track t = s.createTrack();
 
-		//****  set track name (meta event)  ****
-				mt = new MetaMessage();
-				String TrackName = new String("piste MIDI");
-				mt.setMessage(0x03 ,TrackName.getBytes(), TrackName.length());
-				me = new MidiEvent(mt,(long)0);
-				t.add(me);
+					//****  General MIDI sysex -- turn on General MIDI sound set  ****
+					byte[] b = {(byte)0xF0, 0x7E, 0x7F, 0x09, 0x01, (byte)0xF7};
+					SysexMessage sm = new SysexMessage();
+					sm.setMessage(b, 6);
+					MidiEvent me = new MidiEvent(sm,(long)0);
+					t.add(me);
 
-		//****  set omni on  ****
-				ShortMessage mm = new ShortMessage();
-				mm.setMessage(0xB0, 0x7D,0x00);
-				me = new MidiEvent(mm,(long)0);
-				t.add(me);
+					//****  set tempo (meta event)  ****
+					MetaMessage mt = new MetaMessage();
+					byte[] bt = {0x02, (byte)0x00, 0x00};
+					mt.setMessage(0x51 ,bt, 3);
+					me = new MidiEvent(mt,(long)0);
+					t.add(me);
 
-		//****  set poly on  ****
-				mm = new ShortMessage();
-				mm.setMessage(0xB0, 0x7F,0x00);
-				me = new MidiEvent(mm,(long)0);
-				t.add(me);
+					//****  set track name (meta event)  ****
+					mt = new MetaMessage();
+					String TrackName = new String("piste MIDI");
+					mt.setMessage(0x03 ,TrackName.getBytes(), TrackName.length());
+					me = new MidiEvent(mt,(long)0);
+					t.add(me);
 
-		//****  set instrument to Piano  ****
-				mm = new ShortMessage();
-				mm.setMessage(0xC0, 0x00, 0x00);
-				me = new MidiEvent(mm,(long)0);
-				t.add(me);
+					//****  set omni on  ****
+					ShortMessage mm = new ShortMessage();
+					mm.setMessage(0xB0, 0x7D,0x00);
+					me = new MidiEvent(mm,(long)0);
+					t.add(me);
 
-				 int cmpt = 0;
-                 for (int x = 0; x < canvas.score.numBeats; ++x)
-                 {
-                     for (int y = 0; y < canvas.score.numPitches; ++y)
-                     {
-                         if (canvas.score.grid[x][y])
-                         {
-             //****  note on - middle C  ****
-                             mm = new ShortMessage();
-                             mm.setMessage(0x90, y,0x60);
-                             me = new MidiEvent(mm,(long)cmpt);
-                             t.add(me);
+					//****  set poly on  ****
+					mm = new ShortMessage();
+					mm.setMessage(0xB0, 0x7F,0x00);
+					me = new MidiEvent(mm,(long)0);
+					t.add(me);
 
-             //****  note off - middle C - 120 ticks later  ****
-                             mm = new ShortMessage();
-                             mm.setMessage(0x80, y,0x40);
-                             me = new MidiEvent(mm,(long)cmpt + 150);
-                             t.add(me);
-                         }
-                     }
-                     
-                     cmpt += 150;
-                 }	
-				
+					//****  set instrument to Piano  ****
+					mm = new ShortMessage();
+					mm.setMessage(0xC0, 0x00, 0x00);
+					me = new MidiEvent(mm,(long)0);
+					t.add(me);
 
-		//****  set end of track (meta event) 19 ticks later  ****
-				mt = new MetaMessage();
-		        byte[] bet = {}; // empty array
-				mt.setMessage(0x2F,bet,0);
-				me = new MidiEvent(mt, (long)140);
-				t.add(me);
+					int cmpt = 0;
+					for (int x = 0; x < canvas.score.numBeats; ++x)
+					{
+						for (int y = 0; y < canvas.score.numPitches; ++y)
+						{
+							if (canvas.score.grid[x][y])
+							{
+								//****  note on - middle C  ****
+								mm = new ShortMessage();
+								mm.setMessage(0x90, y,0x60);
+								me = new MidiEvent(mm,(long)cmpt);
+								t.add(me);
 
-		//****  write the MIDI sequence to a MIDI file  ****
-				MidiSystem.write(s,1,file);
-			} //try
+								//****  note off - middle C - 120 ticks later  ****
+								mm = new ShortMessage();
+								mm.setMessage(0x80, y,0x40);
+								me = new MidiEvent(mm,(long)cmpt + 150);
+								t.add(me);
+							}
+						}
+
+						cmpt += 150;
+					}	
+
+
+					//****  set end of track (meta event) 19 ticks later  ****
+					mt = new MetaMessage();
+					byte[] bet = {}; // empty array
+					mt.setMessage(0x2F,bet,0);
+					me = new MidiEvent(mt, (long)140);
+					t.add(me);
+
+					//****  write the MIDI sequence to a MIDI file  ****
+					MidiSystem.write(s,1,file);
+				} //try
 				catch(Exception e1)
-			{
-				System.out.println("Exception caught " + e1.toString());
-			} //catch
-		    System.out.println("Fin Sauvegarde");
-            }
+				{
+					System.out.println("Exception caught " + e1.toString());
+				} //catch
+				System.out.println("Fin Sauvegarde");
+			}
 		}
 		else if ( source == quitMenuItem ) {
 			int response = JOptionPane.showConfirmDialog(
@@ -982,42 +1042,42 @@ public class SimplePianoRoll implements ActionListener {
 		{
 			/************************AJOUT************************/
 			System.out.println("Charger Fichier");
-            JFileChooser fc = new JFileChooser();
-            
-            int returnVal = fc.showOpenDialog(frame);
+			JFileChooser fc = new JFileChooser();
 
-            if (returnVal == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-                
-                canvas.clear();
-                try
-                {
-                    Sequence sequence = MidiSystem.getSequence(file);
+			int returnVal = fc.showOpenDialog(frame);
 
-                    int beat = 0;
-                    for (Track piste :  sequence.getTracks()) {
-                        for (int x=0; x < piste.size(); x++) {
-                            MidiEvent event = piste.get(x);
-                            MidiMessage message = event.getMessage();
-                            if (message instanceof ShortMessage) {
-                                ShortMessage sm = (ShortMessage) message;
-                                if (sm.getCommand() == 0x90) {
-                                    int key = sm.getData1();
-                                    int note = key;
-                                    beat = (int)(event.getTick() / 150);
-                                    if (beat <= canvas.score.numBeats && note < canvas.score.numPitches)
-                                    {
-                                        canvas.score.grid[beat][note] = true;
-                                    }
-                                } 
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				File file = fc.getSelectedFile();
 
-                            }
-                        }
-                    }
-                } catch(Exception ex) {}
-            }
-			
-			
+				canvas.clear();
+				try
+				{
+					Sequence sequence = MidiSystem.getSequence(file);
+
+					int beat = 0;
+					for (Track piste :  sequence.getTracks()) {
+						for (int x=0; x < piste.size(); x++) {
+							MidiEvent event = piste.get(x);
+							MidiMessage message = event.getMessage();
+							if (message instanceof ShortMessage) {
+								ShortMessage sm = (ShortMessage) message;
+								if (sm.getCommand() == 0x90) {
+									int key = sm.getData1();
+									int note = key;
+									beat = (int)(event.getTick() / 150);
+									if (beat <= canvas.score.numBeats && note < canvas.score.numPitches)
+									{
+										canvas.score.grid[beat][note] = true;
+									}
+								} 
+
+							}
+						}
+					}
+				} catch(Exception ex) {}
+			}
+
+
 		}
 		/************************AJOUT************************/
 		else if (source == rdmMenuItem)
@@ -1086,6 +1146,11 @@ public class SimplePianoRoll implements ActionListener {
 			rolloverMode = RM_PLAY_NOTE_UPON_ROLLOVER_IF_SPECIAL_KEY_HELD_DOWN;
 		}
 	}
+	
+	public int nbrRDM(int Min, int Max){
+		
+		return Min + (int)(Math.random() * ((Max - Min) + 1));
+	}
 
 
 	// For thread safety, this should be invoked
@@ -1097,7 +1162,7 @@ public class SimplePianoRoll implements ActionListener {
 				synthesizer = MidiSystem.getSynthesizer();
 				synthesizer.open();
 				midiChannels = synthesizer.getChannels();
-				
+
 			}
 			catch (Exception e) {
 				e.printStackTrace();
@@ -1114,69 +1179,76 @@ public class SimplePianoRoll implements ActionListener {
 		frame.setDefaultCloseOperation( JFrame.EXIT_ON_CLOSE );
 
 		JMenuBar menuBar = new JMenuBar();
-			//File menu
+		//File menu
 		/************************AJOUT************************/
-			JMenu menu = new JMenu("File");
-				generateRandomSongItem = new JMenuItem("Generate random song");
-				generateRandomSongItem.addActionListener(this);
-				menu.add(generateRandomSongItem);
-				
-				menu.addSeparator();
-				
-				saveMenuItem = new JMenuItem("Save as MIDI");
-				saveMenuItem.addActionListener(this);
-				menu.add(saveMenuItem);
+		JMenu menu = new JMenu("File");
+		generateRandomSongItem = new JMenuItem("Generate random song");
+		generateRandomSongItem.addActionListener(this);
+		menu.add(generateRandomSongItem);
 
-				menu.addSeparator();
-				
-				loadMenuItem = new JMenuItem("Load .MID");
-				loadMenuItem.addActionListener(this);
-				menu.add(loadMenuItem);
+		menu.addSeparator();
+		
+		generateRandomSongItem2 = new JMenuItem("Generate random song v2");
+		generateRandomSongItem2.addActionListener(this);
+		menu.add(generateRandomSongItem2);
+		
+		menu.addSeparator();
+		
 
-				menu.addSeparator();
-				
-				clearMenuItem = new JMenuItem("Clear");
-				clearMenuItem.addActionListener(this);
-				menu.add(clearMenuItem);
-		
-				menu.addSeparator();
-		
-				quitMenuItem = new JMenuItem("QUIT");
-				quitMenuItem.addActionListener(this);
-				menu.add(quitMenuItem);
-			
-			//View menu
-			menuBar.add(menu);
-			menu = new JMenu("View");
-				showToolsMenuItem = new JCheckBoxMenuItem("Show Options");
-				showToolsMenuItem.setSelected( true );
-				showToolsMenuItem.addActionListener(this);
-				menu.add(showToolsMenuItem);
-		
-				highlightMajorScaleMenuItem = new JCheckBoxMenuItem("Highlight Major C Scale");
-				highlightMajorScaleMenuItem.setSelected( highlightMajorScale );
-				highlightMajorScaleMenuItem.addActionListener(this);
-				menu.add(highlightMajorScaleMenuItem);
-		
-				menu.addSeparator();
-		
-				frameAllMenuItem = new JMenuItem("Frame All");
-				frameAllMenuItem.addActionListener(this);
-				menu.add(frameAllMenuItem);
-		
-				autoFrameMenuItem = new JCheckBoxMenuItem("Auto Frame");
-				autoFrameMenuItem.setSelected( isAutoFrameActive );
-				autoFrameMenuItem.addActionListener(this);
-				menu.add(autoFrameMenuItem);
-			
-			//Help menu
-			menuBar.add(menu);
-			menu = new JMenu("Help");
-				aboutMenuItem = new JMenuItem("About");
-				aboutMenuItem.addActionListener(this);
-				menu.add(aboutMenuItem);
-				menuBar.add(menu);
-				frame.setJMenuBar(menuBar);
+		saveMenuItem = new JMenuItem("Save as MIDI");
+		saveMenuItem.addActionListener(this);
+		menu.add(saveMenuItem);
+
+		menu.addSeparator();
+
+		loadMenuItem = new JMenuItem("Load .MID");
+		loadMenuItem.addActionListener(this);
+		menu.add(loadMenuItem);
+
+		menu.addSeparator();
+
+		clearMenuItem = new JMenuItem("Clear");
+		clearMenuItem.addActionListener(this);
+		menu.add(clearMenuItem);
+
+		menu.addSeparator();
+
+		quitMenuItem = new JMenuItem("QUIT");
+		quitMenuItem.addActionListener(this);
+		menu.add(quitMenuItem);
+
+		//View menu
+		menuBar.add(menu);
+		menu = new JMenu("View");
+		showToolsMenuItem = new JCheckBoxMenuItem("Show Options");
+		showToolsMenuItem.setSelected( true );
+		showToolsMenuItem.addActionListener(this);
+		menu.add(showToolsMenuItem);
+
+		highlightMajorScaleMenuItem = new JCheckBoxMenuItem("Highlight Major C Scale");
+		highlightMajorScaleMenuItem.setSelected( highlightMajorScale );
+		highlightMajorScaleMenuItem.addActionListener(this);
+		menu.add(highlightMajorScaleMenuItem);
+
+		menu.addSeparator();
+
+		frameAllMenuItem = new JMenuItem("Frame All");
+		frameAllMenuItem.addActionListener(this);
+		menu.add(frameAllMenuItem);
+
+		autoFrameMenuItem = new JCheckBoxMenuItem("Auto Frame");
+		autoFrameMenuItem.setSelected( isAutoFrameActive );
+		autoFrameMenuItem.addActionListener(this);
+		menu.add(autoFrameMenuItem);
+
+		//Help menu
+		menuBar.add(menu);
+		menu = new JMenu("Help");
+		aboutMenuItem = new JMenuItem("About");
+		aboutMenuItem.addActionListener(this);
+		menu.add(aboutMenuItem);
+		menuBar.add(menu);
+		frame.setJMenuBar(menuBar);
 
 		toolPanel = new JPanel();
 		toolPanel.setLayout( new BoxLayout( toolPanel, BoxLayout.Y_AXIS ) );
